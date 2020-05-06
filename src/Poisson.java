@@ -18,8 +18,6 @@ public class Poisson extends Entity {
 
     protected Image img = imgPoissons[(int) (Math.random() * 8)];
     protected boolean gauche;
-    protected boolean dead = false;
-    protected boolean sorti = false;
 
     public Poisson() {
         this.gauche = Math.random() < 0.5;
@@ -27,7 +25,7 @@ public class Poisson extends Entity {
         this.largeur = hauteur;
         this.ay = 100;
         this.vy = - (Math.random() * 100 + 100); // entre 100 et 200
-        this.vx = 100 * Math.pow(Jeu.level, (float) 1 / 3) + 200;
+        this.vx = 100 * Math.pow(Jeu.niveau, (float) 1 / 3) + 200;
 
         this.posY = Math.random() * 3 * FishHunt.HEIGHT / 5 + (float) FishHunt.HEIGHT / 5;
 
@@ -48,7 +46,10 @@ public class Poisson extends Entity {
     public void update(double dt) {
         super.update(dt);
 
-        if (posX + largeur < 0 || posX > FishHunt.WIDTH) sorti = true;
+        if (posX + largeur < 0 || posX > FishHunt.WIDTH) {
+            visible = false;
+            if (Jeu.vie > 0) Jeu.vie--;
+        }
     }
 
 

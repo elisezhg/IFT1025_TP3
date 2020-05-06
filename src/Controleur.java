@@ -7,6 +7,22 @@ public class Controleur {
         this.jeu = new Jeu();
     }
 
+    public void incrNiveau() {
+        jeu.incrNiveau();
+    }
+
+    public void incrScore() {
+        jeu.incrScore();
+    }
+
+    public void incrVie() {
+        jeu.incrVie();
+    }
+
+    public void perdre() {
+        jeu.perdre();
+    }
+
     public void lancerBalle(double balleX, double balleY) {
         jeu.lancerBalle(balleX, balleY);
     }

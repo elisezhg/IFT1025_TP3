@@ -1,5 +1,6 @@
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -100,16 +101,33 @@ public class FishHunt extends Application {
         context.fillRect(0, 0, WIDTH, HEIGHT);
 
         // Dessine la cible
-        root.setOnMouseMoved((e) -> {
+        fenetreJeu.setOnMouseMoved((e) -> {
             double cibleX = e.getX();
             double cibleY = e.getY();
             controleur.updateCible(cibleX, cibleY);
         });
 
-        root.setOnMouseClicked((e) -> {
+        fenetreJeu.setOnMouseClicked((e) -> {
             double balleX = e.getX();
             double balleY = e.getY();
             controleur.lancerBalle(balleX, balleY);
+        });
+
+        fenetreJeu.setOnKeyPressed((e) -> {
+            switch (e.getCode()) {
+                case H:
+                    controleur.incrNiveau();
+                    break;
+                case J:
+                    controleur.incrScore();
+                    break;
+                case K:
+                    controleur.incrVie();
+                    break;
+                case L:
+                    controleur.perdre();
+                    break;
+            }
         });
 
         // Crée l'animation du jeu

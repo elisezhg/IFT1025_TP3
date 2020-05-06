@@ -7,40 +7,92 @@ import javafx.scene.text.TextAlignment;
 import java.util.ArrayList;
 
 public class Jeu {
+
+    // Variables globales
     public static int vie;
     public static int score;
-    public static int level;
+    public static int niveau;
 
+    // Variables de l'instance
+    private double timer = 0;
+    private Image imgPoisson = new Image("/res/fish/00.png");
     private double cibleX = -100, cibleY = -100;
+
+    // Entités du jeu
     private ArrayList<Poisson> poissons = new ArrayList<>();
     private ArrayList<Balle> balles = new ArrayList<>();
     private ArrayList<ArrayList<Bulle>> bulles = new ArrayList<>();
 
+
+    /**
+     * Constructeur du jeu
+     */
     public Jeu() {
         init();
     }
 
 
+    /**
+     * Initialise les valeurs du jeu
+     */
     public void init() {
         vie = 3;
         score = 0;
-        level = 1;
+        niveau = 1;
         genererBulles();
     }
 
-    public void genererPoisson() {
 
+    /**
+     * Incrémente le niveau
+     */
+    public void incrNiveau() {
+        niveau++;
     }
 
+
+    /**
+     * Incrémente le score
+     */
+    public void incrScore() {
+        score++;
+    }
+
+
+    /**
+     * Incrémente la vie jusqu'à 3 vies max
+     */
+    public void incrVie() {
+        if (vie < 3) vie++;
+    }
+
+
+    /**
+     * Fait perdre le jeu
+     */
+    public void perdre() {
+        vie = 0;
+    }
+
+
+    /**
+     * Lance une balle si on a pas perdu
+     * @param balleX abscisse de la balle
+     * @param balleY ordonnée de la balle
+     */
     public void lancerBalle(double balleX, double balleY) {
-        balles.add(new Balle(balleX, balleY));
+        if (vie != 0) balles.add(new Balle(balleX, balleY));
     }
 
 
-
-    public void updateCible(double x, double y) {
-        this.cibleX = x;
-        this.cibleY = y;
+    /**
+     * Met à jour les coordonnées de la cible
+     * @param cibleX abscisse de la cible
+     * @param cibleY ordonnée de la cible
+     */
+    public void updateCible(double cibleX, double cibleY) {
+        this.cibleX = cibleX;
+        this.cibleY = cibleY;
     }
 
 
@@ -60,7 +112,10 @@ public class Jeu {
     }
 
 
-    private double timer = 0;
+    /**
+     * Met à jour les positions, vitesses, accélérations de toutes les entités
+     * @param dt Temps écoulé depuis le dernier update() en secondes
+     */
     public void update(double dt) {
         timer += dt;
 
@@ -106,6 +161,10 @@ public class Jeu {
     }
 
 
+    /**
+     * Dessine les entités sur le canvas
+     * @param context contexte graphique
+     */
     public void draw(GraphicsContext context) {
 
         // Dessine les bulles
@@ -117,7 +176,6 @@ public class Jeu {
 
         for (Poisson poisson : poissons) {
             poisson.draw(context);
-
         }
 
         for (Balle balle : balles) {
@@ -133,6 +191,18 @@ public class Jeu {
         context.setFont(new Font(25));
         context.setTextAlign(TextAlignment.CENTER);
         context.fillText(String.valueOf(score), (double) FishHunt.WIDTH / 2, 50);
+
+        // Vie
+        for (int i = 0; i < vie; i++) {
+            context.drawImage(imgPoisson, FishHunt.WIDTH / 2 - 65 + 50 * i, 70, 30, 30);
+        }
+
+        // Game over
+        if (vie == 0) {
+            context.setFill(Color.RED);
+            context.setFont(new Font(50));
+            context.fillText("GAME OVER", (double) FishHunt.WIDTH / 2, (double) FishHunt.HEIGHT / 2);
+        }
     }
 
 }
