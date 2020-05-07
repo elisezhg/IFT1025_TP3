@@ -1,3 +1,5 @@
+// Elise ZHENG (20148416), Yuyin DING (20125263)
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;

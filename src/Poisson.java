@@ -1,3 +1,5 @@
+// Elise ZHENG (20148416), Yuyin DING (20125263)
+
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -19,6 +21,10 @@ public class Poisson extends Entity {
     protected Image img = imgPoissons[(int) (Math.random() * 8)];
     protected boolean gauche;
 
+
+    /**
+     * Constructeur du poisson
+     */
     public Poisson() {
         this.gauche = Math.random() < 0.5;
         this.hauteur = Math.random() * 40 + 80; // entre 80 et 120
@@ -27,7 +33,7 @@ public class Poisson extends Entity {
         this.vy = - (Math.random() * 100 + 100); // entre 100 et 200
         this.vx = 100 * Math.pow(Jeu.niveau, (float) 1 / 3) + 200;
 
-        this.posY = Math.random() * 3 * FishHunt.HEIGHT / 5 + (float) FishHunt.HEIGHT / 5;
+        this.posY = Math.random()  * (FishHunt.HEIGHT - hauteur) * 3 / 5 + (float) FishHunt.HEIGHT / 5;
 
         if (gauche) {
             this.posX = - largeur;
@@ -42,6 +48,10 @@ public class Poisson extends Entity {
     }
 
 
+    /**
+     * Met à jour la position et la vitesse du poisson
+     * @param dt Temps écoulé depuis le dernier update() en secondes
+     */
     @Override
     public void update(double dt) {
         super.update(dt);
@@ -53,6 +63,10 @@ public class Poisson extends Entity {
     }
 
 
+    /**
+     * Dessine le poisson sur le canvas
+     * @param context contexte graphique
+     */
     @Override
     public void draw(GraphicsContext context) {
         context.drawImage(img, posX, posY, largeur, hauteur);

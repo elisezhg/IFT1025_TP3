@@ -1,4 +1,4 @@
-//Elise ZHENG (20148416), Yuyin DING (20125263)
+// Elise ZHENG (20148416), Yuyin DING (20125263)
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;

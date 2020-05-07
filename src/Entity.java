@@ -1,7 +1,10 @@
+// Elise ZHENG (20148416), Yuyin DING (20125263)
+
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public abstract class Entity {
+
     protected Color color;
     protected double ax = 0, ay = 0;
     protected double vx = 0, vy = 0;
@@ -9,28 +12,26 @@ public abstract class Entity {
     protected double hauteur, largeur;
     protected boolean visible = true;
 
-    // Met à jour l'accélération, la vitesse et la position de l'entité
+
+    /**
+     * Met à jour la position et la vitesse de l'entité
+     * @param dt Temps écoulé depuis le dernier update() en secondes
+     */
     public void update(double dt) {
         vx += dt * ax;
         vy += dt * ay;
         posX += dt * vx;
         posY += dt * vy;
-
-        // Force à rester dans les bornes de l'écran
-//        if (posX + largeur > HighSeaTower.WIDTH || posX < 0) {
-//            vx *= -1;
-//        }
-//
-//        posX = Math.min(posX, HighSeaTower.WIDTH - largeur);
-//        posX = Math.max(posX, 0);
-
     }
 
-    // Dessine l'entité sur le canvas
+    /**
+     * Dessine l'entité sur le canvas
+     * @param context contexte graphique
+     */
     public abstract void draw(GraphicsContext context);
 
-    // Getters et setters
 
+    // Getters et setters
 
     public double getPosX() {
         return posX;
@@ -46,14 +47,6 @@ public abstract class Entity {
 
     public void setPosY(double posY) {
         this.posY = posY;
-    }
-
-    public double getHauteur() {
-        return hauteur;
-    }
-
-    public void setHauteur(double hauteur) {
-        this.hauteur = hauteur;
     }
 
     public double getLargeur() {

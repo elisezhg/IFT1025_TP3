@@ -1,3 +1,5 @@
+// Elise ZHENG (20148416), Yuyin DING (20125263)
+
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -9,14 +11,19 @@ import java.util.ArrayList;
 public class Jeu {
 
     // Variables globales
-    public static int vie;
+    public static int vie = 3;
     public static int score;
     public static int niveau;
 
     // Variables de l'instance
-    private double timer = 0;
     private Image imgPoisson = new Image("/res/fish/00.png");
     private double cibleX = -100, cibleY = -100;
+    private boolean affichageEcran = true;
+    private double timerAffichage = 0;
+    private double timerBulle = 0;
+    private double timerPoisson = 0;
+    private double timerPoissonSpe = 0;
+    private int compteurPoissons = 0;
 
     // Entités du jeu
     private ArrayList<Poisson> poissons = new ArrayList<>();
@@ -48,6 +55,9 @@ public class Jeu {
      */
     public void incrNiveau() {
         niveau++;
+        timerAffichage = 0;
+        affichageEcran = true;
+        poissons = new ArrayList<>(); // enlève les poissons de l'écran
     }
 
 
@@ -56,6 +66,7 @@ public class Jeu {
      */
     public void incrScore() {
         score++;
+        compteurPoissons++;
     }
 
 
@@ -72,6 +83,7 @@ public class Jeu {
      */
     public void perdre() {
         vie = 0;
+        affichageEcran = true;
     }
 
 
@@ -81,7 +93,7 @@ public class Jeu {
      * @param balleY ordonnée de la balle
      */
     public void lancerBalle(double balleX, double balleY) {
-        if (vie != 0) balles.add(new Balle(balleX, balleY));
+        if (vie != 0 && !affichageEcran) balles.add(new Balle(balleX, balleY));
     }
 
 
@@ -117,12 +129,39 @@ public class Jeu {
      * @param dt Temps écoulé depuis le dernier update() en secondes
      */
     public void update(double dt) {
-        timer += dt;
+        timerBulle += dt;
+        if (!affichageEcran) timerPoisson += dt;
+        if (!affichageEcran) timerPoissonSpe += dt;
+        timerAffichage += dt;
 
-        if (timer >= 3) {
-            poissons.add(new Poisson());
+        if (timerBulle >= 3) {
             genererBulles();
-            timer = 0;
+            timerBulle = 0;
+        }
+
+        if (timerPoisson >= 3 && !affichageEcran) {
+            poissons.add(new Poisson());
+            timerPoisson = 0;
+        }
+
+        if (timerPoissonSpe >= 5 && niveau > 1 && !affichageEcran) {
+            if (Math.random() > 0.5) {
+                poissons.add(new Crabe());
+            } else {
+                poissons.add(new EtoileDeMer());
+            }
+
+            timerPoissonSpe = 0;
+        }
+
+        if (timerAffichage >= 3) {
+            affichageEcran = false;
+            timerAffichage = 0;
+        }
+
+        if (compteurPoissons == 5) {
+            incrNiveau();
+            compteurPoissons = 0;
         }
 
 
@@ -130,6 +169,7 @@ public class Jeu {
         for (int i = 0; i < poissons.size(); i++) {
             Poisson poisson = poissons.get(i);
             poisson.update(dt);
+
             if (!poisson.isVisible()) {
                 poissons.remove(poisson);
                 i--;
@@ -141,11 +181,14 @@ public class Jeu {
         for (int i = 0; i < balles.size(); i++) {
             Balle balle = balles.get(i);
             balle.update(dt);
+
             for (Poisson poisson : poissons) {
-                balle.testCollision(poisson);
+                if (balle.collision(poisson)) {
+                    Jeu.score++;
+                    compteurPoissons++;
+                }
             }
 
-            // comme poisson; mettre dans entity?
             if (!balle.isVisible()) {
                 balles.remove(balle);
                 i--;
@@ -174,10 +217,12 @@ public class Jeu {
             }
         }
 
+        // Dessine les poissons
         for (Poisson poisson : poissons) {
             poisson.draw(context);
         }
 
+        // Dessine les balles
         for (Balle balle : balles) {
             balle.draw(context);
         }
@@ -197,11 +242,20 @@ public class Jeu {
             context.drawImage(imgPoisson, FishHunt.WIDTH / 2 - 65 + 50 * i, 70, 30, 30);
         }
 
-        // Game over
-        if (vie == 0) {
-            context.setFill(Color.RED);
+
+        if (affichageEcran) {
             context.setFont(new Font(50));
-            context.fillText("GAME OVER", (double) FishHunt.WIDTH / 2, (double) FishHunt.HEIGHT / 2);
+
+            // Affiche numéro du niveau
+            if (vie != 0) {
+                context.setFill(Color.WHITE);
+                context.fillText("Level " + niveau,(double) FishHunt.WIDTH / 2, (double) FishHunt.HEIGHT / 2);
+
+            // Affiche game over
+            } else {
+                context.setFill(Color.RED);
+                context.fillText("GAME OVER", (double) FishHunt.WIDTH / 2, (double) FishHunt.HEIGHT / 2);
+            }
         }
     }
 
