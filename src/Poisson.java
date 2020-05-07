@@ -33,7 +33,7 @@ public class Poisson extends Entity {
         this.vy = - (Math.random() * 100 + 100); // entre 100 et 200
         this.vx = 100 * Math.pow(Jeu.niveau, (float) 1 / 3) + 200;
 
-        this.posY = Math.random()  * (FishHunt.HEIGHT - hauteur) * 3 / 5 + (float) FishHunt.HEIGHT / 5;
+        this.posY = Math.random()  * (FishHunt.HEIGHT - hauteur) * 3 / 5 + FishHunt.HEIGHT / 5;
 
         if (gauche) {
             this.posX = - largeur;

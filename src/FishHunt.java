@@ -26,7 +26,8 @@ import java.io.*;
 
 public class FishHunt extends Application {
     private Stage primaryStage;
-    public static int WIDTH = 640, HEIGHT = 480;
+    private Controleur controleur = new Controleur();
+    public static float WIDTH = 640, HEIGHT = 480;
 
     public static void main(String[] args) {
         launch(args);
@@ -48,7 +49,6 @@ public class FishHunt extends Application {
     // Crée la scène d'accueil
     private Scene creerAccueil() {
         Pane root = new Pane();
-        //root.setAlignment(Pos.CENTER);
         Scene accueil = new Scene(root);
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         root.getChildren().add(canvas);
@@ -62,21 +62,18 @@ public class FishHunt extends Application {
         Image logo = new Image("res/logo.png");
         context.drawImage(logo, WIDTH / 2 - 200, HEIGHT / 2 - 200, 400, 300);
 
-
         // Ajoute les 2 boutons
         Button btn1 = new Button("Nouvelle partie!");
         Button btn2 = new Button("Meilleurs scores");
         btn1.relocate(WIDTH / 2 - 50, HEIGHT / 2 + 130);
         btn2.relocate(WIDTH / 2 - 50, HEIGHT / 2 + 170);
 
-        btn1.setOnAction((e) -> {
-            primaryStage.setScene(creerFenetreJeu());
-        });
+        btn1.setOnAction((e) -> primaryStage.setScene(creerFenetreJeu()));
 
         btn2.setOnAction((e) -> {
             try {
                 primaryStage.setScene(creerMeilleursScores());
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
@@ -93,14 +90,8 @@ public class FishHunt extends Application {
         Scene fenetreJeu = new Scene(root);
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         root.getChildren().add(canvas);
-
-        Controleur controleur = new Controleur();
-
         GraphicsContext context = canvas.getGraphicsContext2D();
-
-        // Dessine le background
-        context.setFill(Color.rgb(0, 244, 144));
-        context.fillRect(0, 0, WIDTH, HEIGHT);
+        controleur.initJeu();
 
         // Dessine la cible
         fenetreJeu.setOnMouseMoved((e) -> {
@@ -128,7 +119,6 @@ public class FishHunt extends Application {
                     break;
                 case L:
                     controleur.perdre();
-                    break;
             }
         });
 
@@ -145,15 +135,20 @@ public class FishHunt extends Application {
 
                 double dt = (now - lastTime) * 1e-9;
 
-                // Reset le canvas en dessinant le background
-                context.setFill(Color.rgb(0, 8, 144));
-                context.fillRect(0, 0, WIDTH, HEIGHT);
-
                 // Met à jour le jeu et dessine
                 controleur.update(dt);
                 controleur.draw(context);
 
                 lastTime = now;
+
+                if (Jeu.switchScene) {
+                    try {
+                        primaryStage.setScene(creerMeilleursScores());
+                        this.stop();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         };
 
@@ -165,7 +160,7 @@ public class FishHunt extends Application {
 
 
     // Crée la fenêtre des meilleurs scores
-    private Scene creerMeilleursScores() throws IOException {
+    private Scene creerMeilleursScores() throws Exception {
         VBox root = new VBox();
         root.setAlignment(Pos.CENTER);
         Scene meilleursScores = new Scene(root, WIDTH, HEIGHT);
@@ -189,9 +184,7 @@ public class FishHunt extends Application {
 
         // Bouton de retour au menu
         Button btnMenu = new Button("Menu");
-        btnMenu.setOnAction((e) -> {
-            primaryStage.setScene(creerAccueil());
-        });
+        btnMenu.setOnAction((e) -> primaryStage.setScene(creerAccueil()));
 
         root.setSpacing(10);
         root.getChildren().addAll(titre, scores, btnMenu);

@@ -14,6 +14,7 @@ public class Jeu {
     public static int vie = 3;
     public static int score;
     public static int niveau;
+    public static boolean switchScene = false;
 
     // Variables de l'instance
     private Image imgPoisson = new Image("/res/fish/00.png");
@@ -46,6 +47,7 @@ public class Jeu {
         vie = 3;
         score = 0;
         niveau = 1;
+        switchScene = false;
         genererBulles();
     }
 
@@ -57,6 +59,7 @@ public class Jeu {
         niveau++;
         timerAffichage = 0;
         affichageEcran = true;
+        compteurPoissons = 0;
         poissons = new ArrayList<>(); // enlève les poissons de l'écran
     }
 
@@ -83,6 +86,7 @@ public class Jeu {
      */
     public void perdre() {
         vie = 0;
+        timerAffichage = 0;
         affichageEcran = true;
     }
 
@@ -134,16 +138,19 @@ public class Jeu {
         if (!affichageEcran) timerPoissonSpe += dt;
         timerAffichage += dt;
 
+        // Génère des bulles toutes les 3 sec
         if (timerBulle >= 3) {
             genererBulles();
             timerBulle = 0;
         }
 
+        // Ajoute un poisson toutes les 3 sec
         if (timerPoisson >= 3 && !affichageEcran) {
             poissons.add(new Poisson());
             timerPoisson = 0;
         }
 
+        // Ajoute un poisson spécial toutes les 5 sec
         if (timerPoissonSpe >= 5 && niveau > 1 && !affichageEcran) {
             if (Math.random() > 0.5) {
                 poissons.add(new Crabe());
@@ -154,14 +161,23 @@ public class Jeu {
             timerPoissonSpe = 0;
         }
 
+        // Termine l'affichage ou change de scène
         if (timerAffichage >= 3) {
             affichageEcran = false;
             timerAffichage = 0;
+            if (vie == 0) {
+                switchScene = true;
+            }
         }
 
+        // Augmente le niveau après 5 poissons attrapés
         if (compteurPoissons == 5) {
             incrNiveau();
-            compteurPoissons = 0;
+        }
+
+        // Fait perdre
+        if (vie == 0 && !affichageEcran) {
+            perdre();
         }
 
 
@@ -210,6 +226,10 @@ public class Jeu {
      */
     public void draw(GraphicsContext context) {
 
+        // Reset le canvas en dessinant le background
+        context.setFill(Color.rgb(0, 8, 144));
+        context.fillRect(0, 0, FishHunt.WIDTH, FishHunt.HEIGHT);
+
         // Dessine les bulles
         for (ArrayList<Bulle> grpBulles : bulles) {
             for (Bulle bulle : grpBulles) {
@@ -235,7 +255,7 @@ public class Jeu {
         context.setFill(Color.WHITE);
         context.setFont(new Font(25));
         context.setTextAlign(TextAlignment.CENTER);
-        context.fillText(String.valueOf(score), (double) FishHunt.WIDTH / 2, 50);
+        context.fillText(String.valueOf(score), FishHunt.WIDTH / 2, 50);
 
         // Vie
         for (int i = 0; i < vie; i++) {
@@ -249,12 +269,12 @@ public class Jeu {
             // Affiche numéro du niveau
             if (vie != 0) {
                 context.setFill(Color.WHITE);
-                context.fillText("Level " + niveau,(double) FishHunt.WIDTH / 2, (double) FishHunt.HEIGHT / 2);
+                context.fillText("Level " + niveau,FishHunt.WIDTH / 2, FishHunt.HEIGHT / 2);
 
             // Affiche game over
             } else {
                 context.setFill(Color.RED);
-                context.fillText("GAME OVER", (double) FishHunt.WIDTH / 2, (double) FishHunt.HEIGHT / 2);
+                context.fillText("GAME OVER", FishHunt.WIDTH / 2, FishHunt.HEIGHT / 2);
             }
         }
     }

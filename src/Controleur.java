@@ -9,6 +9,10 @@ public class Controleur {
         this.jeu = new Jeu();
     }
 
+    public void initJeu() {
+        this.jeu = new Jeu();
+    }
+
     public void incrNiveau() {
         jeu.incrNiveau();
     }
