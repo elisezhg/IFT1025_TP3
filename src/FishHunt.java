@@ -22,6 +22,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class FishHunt extends Application {
+
     private Stage primaryStage;
     private Controleur controleur = new Controleur();
     public static float WIDTH = 640, HEIGHT = 480;
@@ -96,13 +97,14 @@ public class FishHunt extends Application {
         GraphicsContext context = canvas.getGraphicsContext2D();
         controleur.initJeu();
 
-        // Dessine la cible
+        // Envoie les mouvements du curseur au contrôleur
         fenetreJeu.setOnMouseMoved((e) -> {
             double cibleX = e.getX();
             double cibleY = e.getY();
             controleur.updateCible(cibleX, cibleY);
         });
 
+        // Envoie les cordonnées du click au contrôleur
         fenetreJeu.setOnMouseClicked((e) -> {
             double balleX = e.getX();
             double balleY = e.getY();
@@ -144,6 +146,7 @@ public class FishHunt extends Application {
 
                 lastTime = now;
 
+                // Change de scène
                 if (Jeu.switchScene) {
                     try {
                         primaryStage.setScene(creerMeilleursScores());
@@ -174,12 +177,10 @@ public class FishHunt extends Application {
         Text titre = new Text("Meilleurs scores");
         titre.setFont(new Font(35));
 
-        // Score
-        ListView<String> scores = new ListView<>();
-        scores.setMaxWidth(WIDTH - 60);
-        scores.setMaxHeight(300);
-
+        // Tableau des scores
         ArrayList<String[]> tabScores = new ArrayList<>();
+        ListView<String> scoreBoard = new ListView<>();
+        scoreBoard.setMaxSize(WIDTH - 60, 300);
 
         // Affiche score à partir du fichier
         FileReader fr = new FileReader("src/scores.txt");
@@ -188,79 +189,106 @@ public class FishHunt extends Application {
         int index = 1;
         while ((ligne = reader.readLine()) != null) {
             String[] score = ligne.split(",");
-            scores.getItems().add("#" + index + " - " + score[0] + " - " + score[1]);
+            scoreBoard.getItems().add("#" + index + " - " + score[0] + " - " + score[1]);
             index++;
             tabScores.add(score);
         }
 
         // Bouton de retour au menu
         Button btnMenu = new Button("Menu");
-        btnMenu.setOnAction((e) -> primaryStage.setScene(creerAccueil()));
+        btnMenu.setOnAction((e) -> {
+            primaryStage.setScene(creerAccueil());
+            controleur.initJeu();
+        });
 
         root.setSpacing(10);
-        root.getChildren().addAll(titre, scores, btnMenu);
+        root.getChildren().addAll(titre, scoreBoard, btnMenu);
+
 
         // Score minimun à atteindre pour entrer dans les meilleurs scores
         int scoreMin = 0;
-        if (tabScores.size() != 0) {
-            scoreMin = Integer.parseInt(tabScores.get(tabScores.size() - 1)[1]);
+        if (tabScores.size() == 10) {
+            scoreMin = Integer.parseInt(tabScores.get(9)[1]);
         }
 
-        // Ajout d'un nouveau meilleur score
+        /*
+        *  Ajout d'un nouveau meilleur score si:
+        *   - on a perdu le jeu
+        *   - il n'y a pas encore 10 scores
+        *   - le score actuel dépasse le 10e score
+        */
         if (Jeu.vie == 0 && (tabScores.size() < 10 || Jeu.score > scoreMin)) {
-            HBox ajouterScore = new HBox();
-            ajouterScore.setAlignment(Pos.CENTER);
-
-            Text str1 = new Text("Votre nom: ");
-            TextField inputNom = new TextField();
-            Text str2 = new Text("a fait " + Jeu.score + " points! ");
-            Button btnAddScore = new Button("Ajouter!");
-            FileWriter fw = new FileWriter("src/scores.txt");
-            BufferedWriter writer = new BufferedWriter(fw);
-
-            btnAddScore.setOnAction((e) -> {
-                // Check si y'a une virgule dans le nom entré
-                if (inputNom.getText().contains(",")) {
-                    inputNom.setText("Pas de virgule!");
-                    return;
-                }
-
-                try {
-                    boolean scoreAjoute = false;
-                    String[] nvScore = {inputNom.getText(), String.valueOf(Jeu.score)};
-
-                    // Ajoute le nouveau score à la bonne position
-                    for (int i = 0; i < tabScores.size(); i++) {
-                        if (Jeu.score > Integer.parseInt(tabScores.get(i)[1])) {
-                            tabScores.add(i, nvScore);
-                            scoreAjoute = true;
-                            break;
-                        }
-                    }
-
-                    // Si le score est à ajouter à la fin (quand il y a pas encore 10 scores)
-                    if (!scoreAjoute) tabScores.add(nvScore);
-
-                    // Ajoute les 10 meilleurs scores
-                    for (int i = 0; i < 10 && i < tabScores.size(); i++) {
-                        String[] score = tabScores.get(i);
-                        writer.write(score[0] + "," + score[1] + "\n");
-                    }
-
-                    writer.close();
-                    controleur.initJeu();
-                    primaryStage.setScene(creerAccueil());
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
-
-            ajouterScore.setSpacing(5);
-            ajouterScore.getChildren().addAll(str1, inputNom, str2, btnAddScore);
-            root.getChildren().add(2, ajouterScore);
+            root.getChildren().add(2, ajouterScore(tabScores));
         }
 
         reader.close();
         return meilleursScores;
+    }
+
+
+    /**
+     * Permet au joueur d'ajouter son score aux meilleurs scores
+     * @param tabScores tableaux cobntenant les scores
+     * @return HBox
+     */
+    private HBox ajouterScore(ArrayList<String[]> tabScores) {
+        HBox ajouterScore = new HBox();
+        ajouterScore.setAlignment(Pos.CENTER);
+
+        Text str1 = new Text("Votre nom: ");
+        TextField inputNom = new TextField();
+        Text str2 = new Text("a fait " + Jeu.score + " points! ");
+        Button btnAddScore = new Button("Ajouter!");
+
+        btnAddScore.setOnAction((e) -> {
+            FileWriter fw = null;
+            try {
+                fw = new FileWriter("src/scores.txt");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            BufferedWriter writer = new BufferedWriter(fw);
+
+            // Check si y'a une virgule dans le nom entré
+            if (inputNom.getText().contains(",")) {
+                inputNom.setText("Pas de virgule!");
+                return;
+            }
+
+
+            try {
+                boolean scoreAjoute = false;
+                String[] nvScore = {inputNom.getText(), String.valueOf(Jeu.score)};
+
+                // Insère le score dans le top actuel
+                for (int i = 0; i < tabScores.size(); i++) {
+                    if (Jeu.score > Integer.parseInt(tabScores.get(i)[1])) {
+                        tabScores.add(i, nvScore);
+                        scoreAjoute = true;
+                        break;
+                    }
+                }
+
+                // Si le score n'a pas été inséré, on l'ajoute à la fin
+                if (!scoreAjoute) tabScores.add(nvScore);
+
+                // Ecrit les scores dans le fichier
+                for (int i = 0; i < 10 && i < tabScores.size(); i++) {
+                    String[] score = tabScores.get(i);
+                    writer.write(score[0] + "," + score[1] + "\n");
+                }
+
+                writer.close();
+                controleur.initJeu();
+                primaryStage.setScene(creerAccueil());
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        ajouterScore.setSpacing(5);
+        ajouterScore.getChildren().addAll(str1, inputNom, str2, btnAddScore);
+        return ajouterScore;
     }
 }

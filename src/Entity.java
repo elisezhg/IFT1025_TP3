@@ -24,6 +24,7 @@ public abstract class Entity {
         posY += dt * vy;
     }
 
+
     /**
      * Dessine l'entité sur le canvas
      * @param context contexte graphique

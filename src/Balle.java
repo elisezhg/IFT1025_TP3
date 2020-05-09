@@ -11,9 +11,9 @@ public class Balle extends Entity {
      * @param posY ordonnée de la balle
      */
     public Balle(double posX, double posY) {
-        this.hauteur = 100;
+        this.hauteur = 100;     // rayon de 50px -> diamètre de 100px
         this.largeur = 100;
-        this.vx = -600;
+        this.vx = -600;         // rayon diminue de 300px/s -> diamètre diminue de 600px/s
         this.vy = -600;
         this.posX = posX;
         this.posY = posY;
@@ -37,20 +37,23 @@ public class Balle extends Entity {
      * @return true s'il y a collision, false sinon
      */
     public boolean collision(Poisson poisson) {
+
+        // La balle est encore trop loin
         if (hauteur > 0) return false;
 
         // La balle n'est plus visible
         visible = false;
 
+        boolean touchePoisson = posX >= poisson.getPosX() && posX <= poisson.getPosX() + poisson.getLargeur() &&
+                                posY >= poisson.getPosY() && posY <= poisson.getPosY() + poisson.getLargeur();
+
         // Collision avec le poisson ?
-        if (posX >= poisson.getPosX() && posX <= poisson.getPosX() + poisson.getLargeur() &&
-            posY >= poisson.getPosY() && posY <= poisson.getPosY() + poisson.getLargeur()) {
+        if (touchePoisson) {
             poisson.setVisible(false);
-
             return true;
+        } else {
+            return false;
         }
-
-        return false;
     }
 
 
@@ -63,5 +66,4 @@ public class Balle extends Entity {
         context.setFill(Color.BLACK);
         context.fillOval(posX - largeur / 2, posY - hauteur / 2, hauteur, largeur);
     }
-
 }

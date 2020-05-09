@@ -27,11 +27,11 @@ public class Poisson extends Entity {
      */
     public Poisson() {
         this.gauche = Math.random() < 0.5;
-        this.hauteur = Math.random() * 40 + 80; // entre 80 et 120
+        this.hauteur = Math.random() * 40 + 80; // entre 80px et 120px
         this.largeur = hauteur;
         this.ay = 100;
-        this.vy = - (Math.random() * 100 + 100); // entre 100 et 200
-        this.vx = 100 * Math.pow(Jeu.niveau, (float) 1 / 3) + 200;
+        this.vy = - (Math.random() * 100 + 100); // entre 100px et 200px
+        this.vx = 100 * Math.pow(Jeu.niveau, (float) 1 / 3) + 200; // 100 * niveau^(1/3) + 200
 
         this.posY = Math.random()  * (FishHunt.HEIGHT - hauteur) * 3 / 5 + FishHunt.HEIGHT / 5;
 
@@ -56,6 +56,7 @@ public class Poisson extends Entity {
     public void update(double dt) {
         super.update(dt);
 
+        // Si le poisson sort de l'écran, il n'est plus visible et la vie baisse
         if (posX + largeur < 0 || posX > FishHunt.WIDTH) {
             visible = false;
             if (Jeu.vie > 0) Jeu.vie--;

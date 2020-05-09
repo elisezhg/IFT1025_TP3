@@ -27,12 +27,14 @@ public class Crabe extends Poisson {
         super.update(dt);
         timer += dt;
 
+        // Fini d'avancer
         if (timer >= 0.5 && avance) {
             timer = 0;
             avance = false;
             vx *= -1;   // recule
         }
 
+        // Fini de reculer
         if (timer >= 0.25 && !avance) {
             timer = 0;
             avance = true;

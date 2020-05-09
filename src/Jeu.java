@@ -36,14 +36,6 @@ public class Jeu {
      * Constructeur du jeu
      */
     public Jeu() {
-        init();
-    }
-
-
-    /**
-     * Initialise les valeurs du jeu
-     */
-    public void init() {
         vie = 3;
         score = 0;
         niveau = 1;
@@ -60,7 +52,7 @@ public class Jeu {
         timerAffichage = 0;
         affichageEcran = true;
         compteurPoissons = 0;
-        poissons = new ArrayList<>(); // enlève les poissons de l'écran
+        poissons = new ArrayList<>();  // enlève les poissons de l'écran
     }
 
 
@@ -133,6 +125,8 @@ public class Jeu {
      * @param dt Temps écoulé depuis le dernier update() en secondes
      */
     public void update(double dt) {
+
+        // MAJ des timers
         timerBulle += dt;
         if (!affichageEcran) timerPoisson += dt;
         if (!affichageEcran) timerPoissonSpe += dt;
@@ -180,7 +174,6 @@ public class Jeu {
             perdre();
         }
 
-
         // MAJ poissons
         for (int i = 0; i < poissons.size(); i++) {
             Poisson poisson = poissons.get(i);
@@ -191,7 +184,6 @@ public class Jeu {
                 i--;
             }
         }
-
 
         // MAJ balles
         for (int i = 0; i < balles.size(); i++) {
@@ -250,7 +242,6 @@ public class Jeu {
         // Cible
         context.drawImage(new Image("/res/cible.png"), cibleX - 25, cibleY - 25, 50, 50);
 
-
         // Score
         context.setFill(Color.WHITE);
         context.setFont(new Font(25));
@@ -261,7 +252,6 @@ public class Jeu {
         for (int i = 0; i < vie; i++) {
             context.drawImage(imgPoisson, FishHunt.WIDTH / 2 - 65 + 50 * i, 70, 30, 30);
         }
-
 
         if (affichageEcran) {
             context.setFont(new Font(50));
@@ -278,5 +268,4 @@ public class Jeu {
             }
         }
     }
-
 }
